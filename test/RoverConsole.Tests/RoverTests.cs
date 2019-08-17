@@ -3,6 +3,7 @@ using FluentAssertions;
 using RoverConsole.Exceptions;
 
 using System;
+using System.Linq;
 
 using Xunit;
 
@@ -22,6 +23,108 @@ namespace RoverConsole.Tests
             Action action = () => sut.Land(plateauSize + 1, plateauSize + 1, 'S');
 
             action.Should().ThrowExactly<OutOfPlateauException>();
+        }
+
+        [Fact]
+        public void Land_WhenSuccess_MarksSelfInMap()
+        {
+            const int plateauSize = 2;
+
+            var map = new Mars(plateauSize, plateauSize);
+
+            var sut = new Rover(map);
+
+            sut.Land(0, 0, 'N');
+
+            map.Rovers.Should().HaveCount(1);
+            map.Rovers.Single().Should().Be(sut);
+        }
+
+        [Fact]
+        public void Move_WhenResultsInFallFromPlateau_ThrowsOutOfPlateauException()
+        {
+            const int plateauSize = 1;
+            var map = new Mars(plateauSize, plateauSize);
+
+            var sut = CreateSut(map);
+
+            sut.Land(plateauSize, plateauSize, 'N');
+
+            Action action = () => sut.Move();
+
+            action.Should().ThrowExactly<OutOfPlateauException>();
+        }
+
+        [Fact]
+        public void Land_WhenActionResultsInClashWithOtherRover_ThrowsCollisionException_DoesNotMoveToSpace()
+        {
+            const int plateauSize = 1;
+            var map = new Mars(plateauSize, plateauSize);
+
+            var other = CreateSut(map);
+            var sut = CreateSut(map);
+
+            other.Land(plateauSize, plateauSize, 'N');
+
+            Action action = () => sut.Land(plateauSize, plateauSize, 'N');
+
+            action.Should().ThrowExactly<CollisionException>();
+        }
+
+        [Fact]
+        public void Move_WhenActionResultsInClashWithOtherRover_ThrowsCollisionException_DoesNotMoveToSpace()
+        {
+            const int plateauSize = 1;
+            var map = new Mars(plateauSize, plateauSize);
+
+            var other = CreateSut(map);
+            var sut = CreateSut(map);
+
+            other.Land(plateauSize, plateauSize, 'N');
+
+            sut.Land(plateauSize, plateauSize - 1, 'N');
+
+            Action action = () => sut.Move();
+
+            action.Should().ThrowExactly<CollisionException>();
+        }
+
+        [Fact]
+        public void Reorient_WithValidArgument_ResultsInRoverFacingCorrectDirection()
+        {
+            const int plateauSize = 2;
+
+            var map = new Mars(plateauSize, plateauSize);
+
+            var sut = new Rover(map);
+
+            sut.Land(0, 0, 'N');
+            sut.Reorient('S');
+
+            sut.Orientation.Should().BeOfType<South>();
+        }
+
+        [Fact]
+        public void Move_WhenPathIsClear_AndInPlateau_ResultsInRoverInNewPosition()
+        {
+            const int initialX = 0;
+            const int initialY = 0;
+            const int plateauSize = 2;
+
+            var map = new Mars(plateauSize, plateauSize);
+
+            var sut = new Rover(map);
+
+            sut.Land(initialX, initialY, 'N');
+            sut.Move();
+
+            sut.Position.x.Should().Be(initialX);
+            sut.Position.y.Should().Be(initialY + 1);
+        }
+
+        private Rover CreateSut(Mars map)
+        {
+            return new Rover(map);
         }
     }
 }

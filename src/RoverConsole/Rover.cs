@@ -9,9 +9,9 @@ namespace RoverConsole
     {
         private readonly Mars _map;
 
-        private Direction _orientation;
+        public Direction Orientation { get; private set; }
 
-        public (int x, int y) Position;
+        public (int x, int y) Position { get; private set; }
 
         public Rover(Mars map)
         {
@@ -20,7 +20,7 @@ namespace RoverConsole
 
         public void Land(int x, int y, Direction orientation)
         {
-            _orientation = orientation;
+            Orientation = orientation;
             SetPosition(x, y);
 
             _map.Rovers.Add(this);
@@ -28,13 +28,13 @@ namespace RoverConsole
 
         public void Move()
         {
-            var (newX, newY) = _orientation.Move(Position.x, Position.y);
+            var (newX, newY) = Orientation.Move(Position.x, Position.y);
             SetPosition(newX, newY);
         }
 
         public void Reorient(Direction orientation)
         {
-            _orientation = orientation;
+            Orientation = orientation;
         }
 
         private void SetPosition(int x, int y)
