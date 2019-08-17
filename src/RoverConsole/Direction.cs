@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 namespace RoverConsole
 {
@@ -27,6 +28,7 @@ namespace RoverConsole
             }
         }
 
+        [Pure]
         public abstract Direction Rotate(TurnDirection turnDirection);
         public abstract (int x, int y) Move(int x, int y);
     }
@@ -88,7 +90,7 @@ namespace RoverConsole
         }
         public override (int x, int y) Move(int x, int y)
         {
-            return (--x, y);
+            return (++x, y);
         }
     }
 
@@ -108,7 +110,7 @@ namespace RoverConsole
         }
         public override (int x, int y) Move(int x, int y)
         {
-            return (++x, y);
+            return (--x, y);
         }
     }
 }
