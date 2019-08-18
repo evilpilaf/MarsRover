@@ -32,9 +32,9 @@ namespace RoverConsole
             SetPosition(newX, newY);
         }
 
-        public void Reorient(Direction orientation)
+        public void Turn(TurnDirection turnDirection)
         {
-            Orientation = orientation;
+            Orientation = Orientation.Rotate(turnDirection);
         }
 
         private void SetPosition(int x, int y)
@@ -49,7 +49,6 @@ namespace RoverConsole
                     }
                     Position = (x, y);
                     break;
-
                 case Terrain.Unknown:
                     throw new OutOfPlateauException();
 

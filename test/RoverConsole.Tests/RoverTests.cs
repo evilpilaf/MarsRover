@@ -89,8 +89,12 @@ namespace RoverConsole.Tests
             action.Should().ThrowExactly<CollisionException>();
         }
 
-        [Fact]
-        public void Reorient_WithValidArgument_ResultsInRoverFacingCorrectDirection()
+        [Theory]
+        [InlineData('N', typeof(East))]
+        [InlineData('E', typeof(South))]
+        [InlineData('S', typeof(West))]
+        [InlineData('W', typeof(North))]
+        public void TurnRight_WithValidArgument_ResultsInRoverFacingCorrectDirection(char landingOrientation, Type expectedOutcome)
         {
             const int plateauSize = 2;
 
@@ -98,10 +102,29 @@ namespace RoverConsole.Tests
 
             var sut = new Rover(map);
 
-            sut.Land(0, 0, 'N');
-            sut.Reorient('S');
+            sut.Land(0, 0, landingOrientation);
+            sut.Turn(TurnDirection.Right);
 
-            sut.Orientation.Should().BeOfType<South>();
+            sut.Orientation.Should().BeOfType(expectedOutcome);
+        }
+
+        [Theory]
+        [InlineData('N', typeof(West))]
+        [InlineData('W', typeof(South))]
+        [InlineData('S', typeof(East))]
+        [InlineData('E', typeof(North))]
+        public void TurnLeft_WithValidArgument_ResultsInRoverFacingCorrectDirection(char landingOrientation, Type expectedOutcome)
+        {
+            const int plateauSize = 2;
+
+            var map = new Mars(plateauSize, plateauSize);
+
+            var sut = new Rover(map);
+
+            sut.Land(0, 0, landingOrientation);
+            sut.Turn(TurnDirection.Left);
+
+            sut.Orientation.Should().BeOfType(expectedOutcome);
         }
 
         [Fact]
