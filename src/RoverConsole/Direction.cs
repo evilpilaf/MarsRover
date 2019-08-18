@@ -24,7 +24,7 @@ namespace RoverConsole
                 case 'W':
                     return new West();
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException($"{direction} is not a valid value for the orientation.");
             }
         }
 

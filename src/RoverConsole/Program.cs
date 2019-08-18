@@ -1,5 +1,6 @@
-﻿using System;
-using RoverConsole.Exceptions;
+﻿using RoverConsole.Exceptions;
+
+using System;
 
 namespace RoverConsole
 {
@@ -14,16 +15,14 @@ namespace RoverConsole
             while (true)
             {
                 var rover = new Rover(map);
-                var (lat, longitude, orientation) = ReadLandingInformation();
-
-                rover.Land(lat, longitude, orientation);
+                SetupRoverLanding(rover);
 
                 Console.WriteLine("Enter the commands for the rover: ");
                 var roverCommands = ReadInput().ToCharArray();
 
                 foreach (char command in roverCommands)
                 {
-                    if (!ExecuteCommand(ref rover, command))
+                    if (!ExecuteCommand(rover, command))
                         break;
                 }
 
@@ -32,7 +31,32 @@ namespace RoverConsole
             }
         }
 
-        private static bool ExecuteCommand(ref Rover rover, char command)
+        private static void SetupRoverLanding(Rover rover)
+        {
+            var (lat, longitude, orientation) = ReadLandingInformation();
+
+            try
+            {
+                rover.Land(lat, longitude, orientation);
+            }
+            catch (OutOfPlateauException)
+            {
+                Console.WriteLine("Unable to complete command, position out of plateau limits.");
+                SetupRoverLanding(rover);
+            }
+            catch (CollisionException)
+            {
+                Console.WriteLine("Unable to complete command, position occupied by another rover.");
+                SetupRoverLanding(rover);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                SetupRoverLanding(rover);
+            }
+        }
+
+        private static bool ExecuteCommand(Rover rover, char command)
         {
             switch (command)
             {
@@ -112,7 +136,7 @@ namespace RoverConsole
                 input = Console.ReadLine();
             } while (string.IsNullOrEmpty(input));
 
-            return input;
+            return input.ToUpper();
         }
     }
 }
